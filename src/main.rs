@@ -10,6 +10,9 @@ use near_sdk::borsh::{BorshDeserialize, BorshSerialize};
 use near_sdk::serde::{Deserialize, Serialize};
 use std::io::{self, Write};
 
+#[cfg(test)]
+mod test;
+
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
     // 1. Create a sandbox environment.
@@ -19,7 +22,7 @@ async fn main() -> anyhow::Result<()> {
 
     // 2. deploy the Aurora EVM in sandbox.
     let (evm, sk) =
-        common::init_and_deploy_contract_with_path(&worker, "./res/aurora-testnet.wasm")
+        common::init_and_deploy_contract_with_path(&worker, "./res/aurora-testnet-silo-admin-methods.wasm")
             .await?;
 
     worker.fast_forward(1).await?;
