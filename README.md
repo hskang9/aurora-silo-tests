@@ -1,2 +1,2 @@
-# aurora-dao-demo
-demo for aurora dao deployment
+# aurora-silo-tests
+tests for aurora dao deployment
