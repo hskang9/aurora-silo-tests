@@ -166,3 +166,46 @@ async fn test_set_paused_flags() {
     println!("result: {:?}", result);
     assert!(result.is_success());
 }
+
+#[derive(BorshSerialize, BorshDeserialize, Serialize, Deserialize)]
+pub struct SetOwnerArgs {
+    pub new_owner: AccountId,
+}
+
+#[tokio::test]
+async fn test_set_owner() {
+    // 1. Create a sandbox environment.
+    let worker = workspaces::sandbox().await.unwrap();
+
+    worker.fast_forward(1).await.unwrap();
+
+    // 2. deploy the Aurora EVM in sandbox.
+    let (evm, sk, owner) = common::init_and_deploy_contract_with_path_on_admin_change(
+        &worker,
+        "./res/aurora-testnet-set-owner.wasm",
+    )
+    .await
+    .unwrap();
+
+    worker.fast_forward(1).await.unwrap();
+
+    let args = SetOwnerArgs { new_owner: AccountId::from_str("newowner.test.near").unwrap() };
+
+    let result = owner
+        .call(evm.as_account().id(), "set_owner")
+        .args_borsh(args)
+        .transact()
+        .await
+        .unwrap();
+    println!("result: {:?}", result);
+    assert!(result.is_success());
+
+    // get owner account id
+    let result = owner
+        .view(evm.as_account().id(), "get_owner")
+        .args_borsh(())
+        .await
+        .unwrap();
+
+    println!("result: {:?}", AccountId::from(result.result));
+}
