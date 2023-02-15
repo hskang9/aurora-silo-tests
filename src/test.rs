@@ -8,6 +8,8 @@ use aurora_workspace::{
 };
 use aurora_workspace_demo::common;
 use aurora_workspace_types::AccountId;
+use borsh::{BorshDeserialize, BorshSerialize};
+use serde::{Serialize, Deserialize};
 use std::str::FromStr;
 
 pub const OWNER_ACCOUNT_ID: &str = "owner.test.near";
@@ -158,7 +160,7 @@ async fn test_set_owner() {
     worker.fast_forward(1).await.unwrap();
 
     // 2. deploy the Aurora EVM in sandbox.
-    let (evm, sk, owner) = common::init_and_deploy_contract_with_path_on_admin_change(
+    let (evm, _sk, owner) = common::init_and_deploy_contract_with_path_on_admin_change(
         &worker,
         "./res/aurora-testnet-set-owner.wasm",
     )
@@ -175,7 +177,7 @@ async fn test_set_owner() {
         .transact()
         .await
         .unwrap();
-    println!("result: {:?}", result);
+    println!("Set Owner result: {:?}", result);
     assert!(result.is_success());
 
     // get owner account id
@@ -185,5 +187,5 @@ async fn test_set_owner() {
         .await
         .unwrap();
 
-    println!("result: {:?}", AccountId::from(result.result));
+    println!("View result: {:?}", result);
 }

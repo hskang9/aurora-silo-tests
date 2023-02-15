@@ -40,7 +40,7 @@ pub async fn init_and_deploy_contract_with_path(worker: &Worker<Sandbox>, path: 
     Ok((contract, sk))
 }
 
-pub async fn init_and_deploy_contract_with_path_on_admin_change(worker: &Worker<Sandbox>, path: &str) -> anyhow::Result<(EvmContract, SecretKey)> {
+pub async fn init_and_deploy_contract_with_path_on_admin_change(worker: &Worker<Sandbox>, path: &str) -> anyhow::Result<(EvmContract, SecretKey, Account)> {
     let sk = SecretKey::from_random(KeyType::ED25519);
     let evm_account = worker
         .create_tla(AccountId::from_str(OWNER_ACCOUNT_ID)?, sk.clone())
@@ -57,7 +57,7 @@ pub async fn init_and_deploy_contract_with_path_on_admin_change(worker: &Worker<
     // create contract
     let contract = EvmContract::deploy_and_init(evm_account.clone(), init_config, wasm).await?;
 
-    Ok((contract, sk))
+    Ok((contract, sk, evm_account))
 }
 
 pub async fn init_and_deploy_contract(worker: &Worker<Sandbox>) -> anyhow::Result<EvmContract> {
