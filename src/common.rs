@@ -1,5 +1,6 @@
 use aurora_workspace::contract::EthProverConfig;
 use aurora_workspace::{types::AccountId, EvmContract, InitConfig};
+use aurora_engine::parameters::NewCallArgs;
 use std::str::FromStr;
 use workspaces::network::Sandbox;
 use workspaces::types::{KeyType, SecretKey};
@@ -34,14 +35,14 @@ pub async fn init_and_deploy_contract_with_path(worker: &Worker<Sandbox>, path: 
     };
     let wasm = std::fs::read(path)?;
     // create contract
-    let contract = EvmContract::deploy_and_init(evm_account, init_config, wasm).await?;
+    let contract = EvmContract::deploy_and_init(evm_account.clone(), init_config, wasm).await?;
 
     Ok((contract, sk))
 }
 
-pub async fn init_and_deploy_contract_with_path_on_admin_change(worker: &Worker<Sandbox>, path: &str) -> anyhow::Result<(EvmContract, SecretKey, Account)> {
+pub async fn init_and_deploy_contract_with_path_on_admin_change(worker: &Worker<Sandbox>, path: &str) -> anyhow::Result<(EvmContract, SecretKey)> {
     let sk = SecretKey::from_random(KeyType::ED25519);
-    let owner_account = worker
+    let evm_account = worker
         .create_tla(AccountId::from_str(OWNER_ACCOUNT_ID)?, sk.clone())
         .await?
         .into_result()?;
@@ -54,9 +55,9 @@ pub async fn init_and_deploy_contract_with_path_on_admin_change(worker: &Worker<
     };
     let wasm = std::fs::read(path)?;
     // create contract
-    let contract = EvmContract::deploy_and_init(owner_account.clone(), init_config, wasm).await?;
+    let contract = EvmContract::deploy_and_init(evm_account.clone(), init_config, wasm).await?;
 
-    Ok((contract, sk, owner_account))
+    Ok((contract, sk))
 }
 
 pub async fn init_and_deploy_contract(worker: &Worker<Sandbox>) -> anyhow::Result<EvmContract> {
